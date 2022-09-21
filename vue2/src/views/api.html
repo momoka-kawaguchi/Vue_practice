@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+
+    </style>
+</head>
+<body>
+    <div id="app">
+        <input type="text" v-model="keyword">
+        <button @click="search(keyword)">検索する</buttton>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+    <script>
+        let app = new Vue({
+            el:"#app",
+            data(){
+                return{
+                    keyword: "",
+                    searchResults: []
+                }
+            },
+            methods:{
+                async search(keyword){
+                    this.searchResults = []
+                    // クエリーストリングを作成
+                    const baseUrl = "https://www.googleapis.com/books/v1/volumes?"
+                    const params = {
+                        q: `inntitle:${keyword}`,
+                        maxResult:40
+                    }
+                    const queryParams = new URLSearchParams(params)
+                    console.log(baseUrl + queryParams)
+                    // fetchでJSONを取得
+                    const responce = await fetch (baseUrl + queryParams)
+                    .then( responce => responce.json())
+                    console.log(responce.items)
+                    // 必要な情報を配列にpush
+                    for (let book of responce.items){
+                        let title = book.volumeInfo.title
+                        let img = book.volumeInfo.imageLinks
+                        let description = book.volumeInfo.description
+                        this.searchResults.push({
+                            title: title ? title : "",
+                            image: img ? img.thumbnail : "",
+                            description: description ? description.slice(0,40) : ""
+                        })
+
+                    }
+                }
+
+            }
+        })
+</script>
+</body>
+</html>
